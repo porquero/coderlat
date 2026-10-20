@@ -36,7 +36,7 @@ sources:
         url: 'https://docs.pola.rs/'
 ---
 
-Para enmascarar RUT, correos y teléfonos en una columna de texto de Polars, instala `maskops` y aplica `maskops.mask_pii` dentro de `with_columns`. Reconoce el RUT validando su dígito verificador y no necesita modelos de lenguaje ni archivos intermedios. Este tutorial lo prueba de punta a punta en Python 3.13.
+Para enmascarar RUT, correos y teléfonos en una columna de texto de Polars, instala `maskops` y aplica `maskops.mask_pii` dentro de `with_columns`. Reconoce el RUT validando su dígito verificador y no necesita modelos de lenguaje ni archivos intermedios. Lo probé completo en Python 3.13.
 
 ===
 
@@ -98,7 +98,7 @@ Sin datos personales en esta fila
 RUT **********-K, correo ********@empresa.cl
 ```
 
-El RUT pierde el número y conserva el dígito verificador. El correo pierde la parte local y deja el dominio. El teléfono conserva el código de país.
+Del RUT queda solo el dígito verificador. El correo mantiene el dominio y pierde todo lo que va antes de la arroba, y del teléfono sobrevive el código de país.
 
 ## Enmascarar solo el RUT
 
@@ -119,7 +119,7 @@ Los nombres de las familias están en el docstring de `mask_pii`, y un nombre qu
 
 ## Mantener la relación entre tablas
 
-Los asteriscos son irreversibles y borran la relación entre filas. Si necesitas que el mismo RUT dé el mismo resultado en varias columnas o tablas, usa el modo `consistent` con una sal secreta.
+Los asteriscos son irreversibles y borran la relación entre filas. ¿Y si necesitas que el mismo RUT dé el mismo resultado en varias columnas o tablas? Usa el modo `consistent` con una sal secreta.
 
 ```python
 seudonimo = df.with_columns(
@@ -134,7 +134,7 @@ Sin datos personales en esta fila
 RUT 25.666.729-K, correo ********@empresa.cl
 ```
 
-Con la misma sal, el mismo valor produce siempre la misma salida. Los correos siguen con asteriscos. Guarda la sal fuera de los datos, por ejemplo en una variable de entorno, y no en el código.
+Con la misma sal, el mismo valor da siempre la misma salida. Los correos siguen con asteriscos. La sal va fuera de los datos, por ejemplo en una variable de entorno, y nunca escrita en el código como en este ejemplo.
 
 ## Dejar constancia de lo que se detectó
 
@@ -154,15 +154,19 @@ notas   phone       1            asterisk
 notas   rut         2            asterisk
 ```
 
-El archivo `rat.json` trae `maskops_version`, `generated_at`, `source`, `record_count` y la lista `records` con esas mismas filas. Cada familia lleva además una columna `regulation`: la herramienta etiqueta el RUT con "Ley 21.719" y correo y teléfono como datos personales generales.
+El archivo `rat.json` trae `maskops_version`, `generated_at`, `source`, `record_count` y la lista `records` con esas mismas filas. Cada registro incluye también un campo `regulation`. La herramienta etiqueta el RUT con "Ley 21.719", y el correo y el teléfono como datos personales generales.
 
 ## Mi experiencia
 
-Corrí este código completo en Python 3.13.13, en Windows, con maskops 2.1.0 y polars 2.0.0, y las salidas de arriba son las que obtuve. Antes lo intenté en Python 3.14.2 y pip se puso a compilar en vez de instalar un wheel, así que lo detuve y pasé a 3.13. En el modo `consistent`, dos ejecuciones con la misma sal dieron el mismo resultado.
+Busqué un nicho para Rust, un lenguaje que me resulta cómodo de leer, y vi que no había herramientas de PII pensadas para LATAM. Vivo en Chile y me pareció ridículo. De ahí salió MaskOps.
+
+Las primeras tablas de velocidad del README salieron malas, entre 0,4 y 0,7 veces la velocidad de Python. ¿El problema? La comparación era injusta: MaskOps corría todos sus patrones en cada fila y el código de Python solo uno. Lo arreglé pasando `patterns=` con la familia que se medía, el mismo parámetro que usaste arriba para enmascarar solo el RUT, y agregué un atajo en Rust que salta las filas sin dígitos ni arroba. Con un millón de filas y datos mezclados, la ventaja quedó entre 1,2 y 3,2 veces. En un caso, documentos europeos con datos en todas las filas, sigue en 0,9, y el README lo dice tal cual.
+
+Para este tutorial corrí el código completo en Python 3.13.13, en Windows, con maskops 2.1.0 y polars 2.0.0. Las salidas de arriba son las que obtuve. Primero lo intenté en Python 3.14.2: pip se puso a compilar en vez de instalar un wheel, lo detuve y pasé a 3.13. En el modo `consistent`, dos ejecuciones con la misma sal dieron el mismo resultado.
 
 ## Qué no hace
 
-MaskOps no detecta nombres de personas, lugares ni organizaciones escritos en texto libre. Para eso hace falta otra herramienta, y el propio README del proyecto sugiere usar una de reconocimiento de entidades junto a MaskOps cuando el texto tiene nombres. Tampoco reemplaza revisar tus datos: prueba con una muestra antes de enmascarar una tabla real.
+MaskOps busca patrones, no entiende texto. No detecta nombres de personas, lugares ni organizaciones escritos en texto libre. Para eso hace falta otra herramienta, y el README del proyecto sugiere combinarlo con una de reconocimiento de entidades cuando el texto trae nombres. Antes de enmascarar una tabla real, prueba con una muestra y mira el resultado.
 
 ## Recursos
 
