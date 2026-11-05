@@ -39,16 +39,22 @@ Con cualquiera de las dos primeras, quien ya tiene un PR aprobado no vuelve a ne
 ## Publicar en el servidor
 
 ```bash
-# Primera vez (repo privado: usa una deploy key de solo lectura)
-git clone git@github.com:porquero/coderlat-contenido.git ~/coderlat-contenido
-
-# Cada publicación
-cd ~/coderlat-contenido && git pull origin main \
-  && rsync -av --delete pages/02.blog/aportes/ /RUTA/AL/SITIO/user/pages/02.blog/aportes/ \
-  && cd /RUTA/AL/SITIO && php bin/grav clearcache
+bash ~/publicar-sitio.sh
 ```
 
-`--delete` solo actúa dentro de `02.blog/aportes/`: si retiras un aporte del repo de contenido, desaparece del sitio, y no toca el resto de tus páginas.
+El script (`docs/publicar-sitio.sh`; cópialo a `~/` del servidor) hace `git fetch` + fast-forward de `main`, sincroniza **solo** `pages/02.blog/aportes/` con `rsync --delete` (un aporte retirado del repo desaparece del sitio; el resto de tus páginas no se toca) y ejecuta `php bin/grav clearcache` **únicamente si rsync reportó cambios**. Usa un lock para que dos ejecuciones no se pisen. Ajusta con variables: `SITIO`, `CONTENIDO`, `PHP`.
+
+### Automático con cron
+
+Un solo cron basta (el script ya compara antes de limpiar caché). En cPanel → *Cron Jobs*, cada 10 minutos:
+
+```
+*/10 * * * * PHP=/usr/local/bin/php bash $HOME/publicar-sitio.sh >> $HOME/publicar-sitio.log 2>&1
+```
+
+Comprueba la ruta de PHP con `which php` (en cPanel suele ser `/usr/local/bin/php` o `/opt/cpanel/ea-phpXX/root/usr/bin/php`) y pon esa en `PHP=`. El log solo recibe líneas cuando hubo cambios.
+
+Si prefieres dos cron separados: el primero hace solo `git fetch/merge`, el segundo ejecuta el rsync + limpieza; aporta poco, porque el rsync ya detecta por sí mismo si hubo cambios, y separar abre una ventana donde el sitio y el repo quedan desfasados.
 
 ## Qué pasa si algo falla
 - **Check "Validar contenido" en rojo**: el detalle indica qué corregir.
