@@ -1,7 +1,7 @@
 ---
 title: 'Título claro y específico (idealmente < 60 caracteres, con la palabra clave al inicio)'
 date: '31-12-2026 10:00'
-author: tu-usuario-github
+author: tu-usuario-github   # = tu carpeta en minúsculas: aportes/tu-usuario-github/<slug>/item.es.md
 # ia: asistido   # descomenta solo si usaste IA para redactar
 taxonomy:
     tool:

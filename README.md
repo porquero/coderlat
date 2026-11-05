@@ -17,7 +17,7 @@ El sitio tiene tutoriales, plantillas, un glosario, herramientas y un servidor M
 
 ## Cómo publicar
 
-Con git: haz un fork, copia `templates/articulo/` a `aportes/<slug>/item.es.md` y abre un Pull Request. La guía paso a paso está en [CONTRIBUTING.md](CONTRIBUTING.md), con un prompt para armar el borrador a partir de tu repo o de un artículo que ya tengas.
+Con git: haz un fork, copia `templates/articulo/` a `aportes/<tu-usuario>/<slug>/item.es.md` y abre un Pull Request. La guía paso a paso está en [CONTRIBUTING.md](CONTRIBUTING.md), con un prompt para armar el borrador a partir de tu repo o de un artículo que ya tengas.
 
 Sin git: abre un Issue con la plantilla [Proponer solución](../../issues/new/choose) y lo convertimos en artículo.
 
@@ -28,7 +28,7 @@ Cada artículo del sitio tiene su hilo en [Discussions](../../discussions), con 
 ## Estructura
 
 ```
-aportes/<slug>/item.es.md         # aportes pendientes de revisión (vacío cuando no hay)
+aportes/<usuario>/<slug>/item.es.md   # aportes pendientes de revisión (vacío cuando no hay)
 templates/articulo/               # plantilla para copiar
 .github/                          # plantillas, validación y publicación automática
 docs/PUBLICACION.md               # guía para el mantenedor

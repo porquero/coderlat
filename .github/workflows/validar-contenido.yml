@@ -16,12 +16,15 @@ jobs:
       - uses: actions/checkout@v4
         with: {fetch-depth: 0}
 
-      - name: Un PR externo solo puede tocar aportes/
+      - name: Un PR externo solo puede tocar aportes/<su-usuario>/
         if: ${{ github.event.pull_request.author_association != 'OWNER' }}
+        env:
+          LOGIN: ${{ github.event.pull_request.user.login }}
         run: |
-          fuera=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -v '^aportes/' || true)
+          login=$(echo "$LOGIN" | tr '[:upper:]' '[:lower:]')
+          fuera=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -v "^aportes/${login}/" || true)
           if [ -n "$fuera" ]; then
-            echo "Este PR modifica archivos fuera de aportes/ (solo el mantenedor puede hacerlo):"
+            echo "::error::Tu PR solo puede modificar archivos dentro de aportes/${login}/ (tu usuario de GitHub en minúsculas). Mueve estos archivos:"
             echo "$fuera"
             exit 1
           fi

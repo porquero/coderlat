@@ -16,6 +16,18 @@ CLAVES_PERMITIDAS = {"title", "media_order", "date", "updated", "author", "ia", 
 METADATA_PERMITIDA = {"description", "keywords"}
 TAXONOMIA_PERMITIDA = set(TAXONOMIAS) | {"tag"}
 SLUG = re.compile(r"^[a-z0-9][a-z0-9\-]*$")
+# Nombres que no pueden usarse como slug de artículo: rutas del sitio, de plugins, de la API y términos técnicos
+RESERVADOS = {
+    "admin", "login", "logout", "register", "registro", "profile", "user", "users", "usuario", "usuarios",
+    "forgot-password", "reset-password", "activate", "unauthorized", "api", "feed", "rss", "atom", "json",
+    "sitemap", "robots", "favicon", "index", "home", "inicio", "blog", "aportes", "aporte", "tag", "tags",
+    "tool", "resource", "country", "category", "author", "autor", "search", "buscar", "page", "pages",
+    "assets", "images", "img", "css", "js", "fonts", "user-data", "system", "vendor", "cache", "logs", "tmp",
+    "backup", "bin", "cgi-bin", "db", "static", "public", "tests", "webserver-configs", "well-known",
+    "quienes-somos", "herramientas", "herramientas-open-source", "comunidad", "recursos", "contenido",
+    "publicar", "unirse", "contacto", "privacidad", "terminos", "error", "404", "500", "maintenance",
+    "random", "subscribe", "newsletter", "grav", "null", "undefined", "con", "prn", "aux", "nul",
+}
 MAX_IMG = 1024 * 1024
 PERMITIDAS = {".md", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".webm", ".mp4"}
 MARCAS = re.compile(r"\[\s*(VERIFICAR|PEGA\s+AQU)", re.I)
@@ -122,9 +134,20 @@ def validar(f):
     if not re.search(r"^## ", prosa, re.M): adv(f, "usa al menos un encabezado '## ' para estructurar el artículo")
     if len(cuerpo.strip()) < 200: adv(f, "el artículo es muy corto (menos de ~200 caracteres)")
 
-    # --- carpeta y archivos
-    if not p.parent.name or not SLUG.match(p.parent.name):
-        err(f, f"la carpeta '{p.parent.name}' debe ser un slug en minúsculas con guiones")
+    # --- carpeta y archivos: aportes/<usuario>/<slug>/item.es.md
+    slug, usuario = p.parent.name, p.parent.parent.name
+    if not slug or not SLUG.match(slug):
+        err(f, f"la carpeta '{slug}' debe ser un slug en minúsculas con guiones")
+    elif slug in RESERVADOS:
+        err(f, f"'{slug}' es un nombre reservado del sitio; elige otro para la carpeta del artículo (por ejemplo, más específico)")
+    elif len(slug) > 80:
+        err(f, "el nombre de la carpeta es demasiado largo (máximo 80 caracteres)")
+    if not usuario or not SLUG.match(usuario):
+        err(f, f"la carpeta del usuario '{usuario}' debe estar en minúsculas (tu usuario de GitHub en minúsculas)")
+    else:
+        autor = str(fm.get("author") or "").strip().lower()
+        if autor and autor != usuario:
+            err(f, f"la carpeta del usuario ('{usuario}') debe coincidir con author ('{fm.get('author')}') en minúsculas: la ruta es aportes/{autor}/{slug}/item.es.md")
     for extra in p.parent.rglob("*"):
         if extra.is_symlink(): err(str(extra), "no se permiten enlaces simbólicos")
         elif extra.is_dir(): err(str(extra), "no se permiten subcarpetas dentro del artículo")

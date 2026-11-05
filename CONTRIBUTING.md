@@ -5,12 +5,12 @@ Hay dos formas de preparar tu artículo: **a mano** (Opción A, abajo) o **con a
 ## Opción A: manualmente
 
 1. Haz **fork** de este repositorio.
-2. Copia `templates/articulo/` a `aportes/<slug-de-tu-articulo>/` (slug en minúsculas, sin tildes, con guiones).
+2. Copia `templates/articulo/` a `aportes/<tu-usuario-de-github>/<slug-de-tu-articulo>/`. Tu usuario va **en minúsculas** y el slug en minúsculas, sin tildes, con guiones. Ejemplo: `aportes/ana-dev/cobranza-whatsapp-n8n/`. Tu artículo se publicará en `coderlat.com/aportes/ana-dev/cobranza-whatsapp-n8n`, y en `coderlat.com/aportes/ana-dev` verás todos tus aportes.
 3. Renombra el archivo a `item.es.md` y completa el encabezado (frontmatter) y el texto en Markdown. Imágenes: en la misma carpeta, referenciadas por nombre.
 4. Abre un **Pull Request** hacia `main`. La validación automática te dirá si falta algo.
 5. Revisamos, pedimos ajustes si hace falta y, al aprobar, **se publica en el sitio automáticamente** y tu carpeta sale de `aportes/` (este repositorio es solo un buzón, por eso es liviano).
 
-> Tip: no necesitas clonar nada. En GitHub, entra a `aportes/` → **Add file → Create new file** y escribe `mi-articulo/item.es.md`; GitHub crea el fork y el PR por ti. Tu PR solo puede tocar archivos dentro de `aportes/`.
+> Tip: no necesitas clonar nada. En GitHub, entra a `aportes/` → **Add file → Create new file** y escribe `tu-usuario/mi-articulo/item.es.md`; GitHub crea el fork y el PR por ti. Tu PR solo puede tocar archivos dentro de `aportes/tu-usuario/`, y el campo `author` debe ser tu mismo usuario.
 
 Archivos permitidos junto al artículo: `.md`, `.png`, `.jpg`, `.gif`, `.webp`, `.webm`, `.mp4` (máx. 1 MB por imagen, sin subcarpetas).
 
@@ -21,7 +21,7 @@ Si ya tienes un repositorio o un artículo publicado en tu blog, un asistente de
 1. Copia el prompt de abajo en tu asistente y reemplaza los campos entre corchetes. En `FUENTE` pega la URL de tu repo o artículo, o el texto.
 2. Revisa el resultado. **La IA se equivoca**: prueba tú mismo los pasos y comandos, y corrige lo que no coincida con lo que viviste.
 3. Resuelve cada marca `[VERIFICAR ...]`, en especial la sección **Mi experiencia**, que solo puedes escribir tú. Mientras queden marcas, la validación del PR fallará a propósito.
-4. Guarda el resultado como `aportes/<carpeta>/item.es.md` y abre el PR (como en los pasos de arriba), o pégalo en el Issue **Proponer solución** si no usas git.
+4. Guarda el resultado como `aportes/<tu-usuario>/<carpeta>/item.es.md` y abre el PR (como en los pasos de arriba), o pégalo en el Issue **Proponer solución** si no usas git.
 
 ````text
 Actúa como editor técnico de Coderlat, una comunidad latinoamericana de soluciones open source e IA.
@@ -71,7 +71,7 @@ sources:
 ---
 
 Incluye de 2 a 4 preguntas en `faq`. Después del archivo, agrega:
-- CARPETA: el nombre sugerido para la carpeta (minúsculas, sin tildes, con guiones).
+- CARPETA: el nombre sugerido para la carpeta del artículo (minúsculas, sin tildes, con guiones; no puede ser un nombre reservado como admin, login, blog o api).
 - PENDIENTES DEL AUTOR: lista de todo lo marcado con [VERIFICAR] y de los datos que faltaron.
 ````
 
