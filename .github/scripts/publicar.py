@@ -43,6 +43,15 @@ def pares_cambiados():
     return sorted(out)
 
 
+def fuera_de_formato():
+    """Archivos cambiados bajo aportes/ que no cuelgan de aportes/<usuario>/<slug>/ (formato antiguo o mal ubicado)."""
+    if re.fullmatch(r"0*", BEFORE or "0"):
+        fs = [str(f) for f in pathlib.Path("aportes").rglob("*") if f.is_file()]
+    else:
+        fs = sh("git", "diff", "--name-only", "--diff-filter=AM", BEFORE, "HEAD", "--", "aportes/").stdout.splitlines()
+    return sorted(f for f in fs if len(f.split("/")) < 4 and not f.endswith(".gitkeep"))
+
+
 def inyectar_visible(item):
     txt = item.read_text(encoding="utf-8")
     if re.search(r"^visible:", txt.split("\n---\n", 1)[0], re.M):
@@ -61,6 +70,8 @@ def asegurar_indices(usuario):
 
 
 publicados, errores = [], []
+for f in fuera_de_formato():
+    errores.append(f"{f}: ruta fuera del formato. Debe ser aportes/<usuario>/<slug>/item.es.md (muévelo con git mv)")
 for usuario, slug in pares_cambiados():
     etiqueta = f"{usuario}/{slug}"
     src = pathlib.Path("aportes") / usuario / slug
